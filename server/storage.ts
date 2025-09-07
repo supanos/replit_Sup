@@ -12,6 +12,7 @@ import { join } from "path";
 
 // Storage interface for sports bar data
 export interface IStorage {
+  init(): Promise<void>;
   // Menu Categories
   getMenuCategories(): Promise<MenuCategory[]>;
   getMenuCategory(id: string): Promise<MenuCategory | undefined>;
@@ -66,82 +67,84 @@ export class MemStorage implements IStorage {
   private events: Map<string, Event> = new Map();
   private games: Map<string, Game> = new Map();
   private reservations: Map<string, Reservation> = new Map();
-  private settings: SiteSettings;
-  private landingData: LandingContent;
-  private promotionsData: Promotions;
+  private settings!: SiteSettings;
+  private landingData!: LandingContent;
+  private promotionsData!: Promotions;
 
-  constructor() {
-    this.initializeData();
+  constructor() {}
+
+  async init(): Promise<void> {
+    try {
+      await this.initializeData();
+    } catch (error) {
+      console.error('Error loading data files:', error);
+      this.initializeDefaultData();
+      throw error;
+    }
   }
 
   private async initializeData() {
-    try {
-      // Load menu data
-      const menuData = JSON.parse(await readFile(join(process.cwd(), 'server/data/menu.json'), 'utf-8'));
-      
-      // Initialize menu categories
-      for (const category of menuData.categories) {
-        this.menuCategories.set(category.id, category);
-      }
-      
-      // Initialize menu items
-      for (const item of menuData.items) {
-        const menuItem: MenuItem = {
-          ...item,
-          description: item.description || null,
-          image: item.image || null,
-          badges: Array.isArray(item.badges) ? item.badges : null,
-          allergens: Array.isArray(item.allergens) ? item.allergens : null
-        };
-        this.menuItems.set(item.id, menuItem);
-      }
-      
-      // Load events data
-      const eventsData = JSON.parse(await readFile(join(process.cwd(), 'server/data/events.json'), 'utf-8'));
-      for (const event of eventsData) {
-        const newEvent: Event = {
-          ...event,
-          start: new Date(event.start),
-          end: new Date(event.end),
-          description: event.description || null,
-          image: event.image || null,
-          tags: Array.isArray(event.tags) ? event.tags : null
-        };
-        this.events.set(event.id, newEvent);
-      }
-      
-      // Load games data
-      const gamesData = JSON.parse(await readFile(join(process.cwd(), 'server/data/games.json'), 'utf-8'));
-      for (const game of gamesData) {
-        const newGame: Game = {
-          ...game,
-          datetime: new Date(game.datetime),
-          channel: game.channel || null
-        };
-        this.games.set(game.id, newGame);
-      }
-      
-      // Load landing data
-      this.landingData = JSON.parse(await readFile(join(process.cwd(), 'server/data/landing.json'), 'utf-8'));
-      
-      // Load promotions data
-      this.promotionsData = JSON.parse(await readFile(join(process.cwd(), 'server/data/promotions.json'), 'utf-8'));
-      
-      // Load settings data
-      const settingsData = JSON.parse(await readFile(join(process.cwd(), 'server/data/settings.json'), 'utf-8'));
-      this.settings = {
-        id: "main",
-        ...settingsData,
-        hours: Array.isArray(settingsData.hours) ? settingsData.hours : [],
-        socials: settingsData.socials || {},
-        hero: settingsData.hero || { backgroundImage: "", title: "", subtitle: "" },
-        footer: settingsData.footer || { description: "", links: [], copyright: "" }
-      };
-    } catch (error) {
-      console.error('Error loading data files:', error);
-      // Initialize with default empty data
-      this.initializeDefaultData();
+    // Load menu data
+    const menuData = JSON.parse(await readFile(join(process.cwd(), 'server/data/menu.json'), 'utf-8'));
+
+    // Initialize menu categories
+    for (const category of menuData.categories) {
+      this.menuCategories.set(category.id, category);
     }
+
+    // Initialize menu items
+    for (const item of menuData.items) {
+      const menuItem: MenuItem = {
+        ...item,
+        description: item.description || null,
+        image: item.image || null,
+        badges: Array.isArray(item.badges) ? item.badges : null,
+        allergens: Array.isArray(item.allergens) ? item.allergens : null
+      };
+      this.menuItems.set(item.id, menuItem);
+    }
+
+    // Load events data
+    const eventsData = JSON.parse(await readFile(join(process.cwd(), 'server/data/events.json'), 'utf-8'));
+    for (const event of eventsData) {
+      const newEvent: Event = {
+        ...event,
+        startDate: new Date(event.start),
+        endDate: new Date(event.end),
+        description: event.description || null,
+        image: event.image || null,
+        tags: Array.isArray(event.tags) ? event.tags : null
+      };
+      this.events.set(event.id, newEvent);
+    }
+
+    // Load games data
+    const gamesData = JSON.parse(await readFile(join(process.cwd(), 'server/data/games.json'), 'utf-8'));
+    for (const game of gamesData) {
+      const newGame: Game = {
+        ...game,
+        startTime: new Date(game.datetime),
+        channel: game.channel || null
+      };
+      this.games.set(game.id, newGame);
+    }
+
+    // Load landing data
+    this.landingData = JSON.parse(await readFile(join(process.cwd(), 'server/data/landing.json'), 'utf-8')) as unknown as LandingContent;
+
+    // Load promotions data
+    this.promotionsData = JSON.parse(await readFile(join(process.cwd(), 'server/data/promotions.json'), 'utf-8')) as unknown as Promotions;
+
+    // Load settings data
+    const settingsData = JSON.parse(await readFile(join(process.cwd(), 'server/data/settings.json'), 'utf-8'));
+    this.settings = {
+      id: "main",
+      ...settingsData,
+      hours: Array.isArray(settingsData.hours) ? settingsData.hours : [],
+      socials: settingsData.socials || {},
+      hero: settingsData.hero || { backgroundImage: "", title: "", subtitle: "" },
+      footer: settingsData.footer || { description: "", links: [], copyright: "" }
+    };
   }
 
   private initializeDefaultData() {
@@ -158,17 +161,18 @@ export class MemStorage implements IStorage {
     };
     
     this.landingData = {
-      popup: { enabled: false, duration: 20, autoRedirect: true },
+      popup: { enabled: false, duration: 20, autoRedirect: true, redirectUrl: "" },
       hero: { title: "", subtitle: "", description: "", backgroundImage: "", ctaText: "", ctaLink: "" },
       features: [],
       specialOffer: { enabled: false, title: "", description: "", badge: "" }
-    };
-    
+    } as unknown as LandingContent;
+
     this.promotionsData = {
+      id: "default",
       landing: { enabled: false, start: "", end: "", redirectAllRoutes: false },
       sideBanner: { enabled: false, start: "", end: "", message: "", link: "", placement: "" },
       happyHour: { enabled: false, title: "", subtitle: "", description: "", days: "", timeRange: "", offers: [] }
-    };
+    } as unknown as Promotions;
   }
 
   // Menu Categories
@@ -183,6 +187,18 @@ export class MemStorage implements IStorage {
   async createMenuCategory(category: InsertMenuCategory): Promise<MenuCategory> {
     this.menuCategories.set(category.id, category);
     return category;
+  }
+
+  async updateMenuCategory(id: string, category: Partial<InsertMenuCategory>): Promise<MenuCategory | undefined> {
+    const existing = this.menuCategories.get(id);
+    if (!existing) return undefined;
+    const updated = { ...existing, ...category } as MenuCategory;
+    this.menuCategories.set(id, updated);
+    return updated;
+  }
+
+  async deleteMenuCategory(id: string): Promise<boolean> {
+    return this.menuCategories.delete(id);
   }
 
   // Menu Items
@@ -210,6 +226,18 @@ export class MemStorage implements IStorage {
     return menuItem;
   }
 
+  async updateMenuItem(id: string, item: Partial<InsertMenuItem>): Promise<MenuItem | undefined> {
+    const existing = this.menuItems.get(id);
+    if (!existing) return undefined;
+    const updated: MenuItem = { ...existing, ...item } as MenuItem;
+    this.menuItems.set(id, updated);
+    return updated;
+  }
+
+  async deleteMenuItem(id: string): Promise<boolean> {
+    return this.menuItems.delete(id);
+  }
+
   // Events
   async getEvents(): Promise<Event[]> {
       return Array.from(this.events.values()).sort((a, b) =>
@@ -234,6 +262,18 @@ export class MemStorage implements IStorage {
     };
     this.events.set(event.id, newEvent);
     return newEvent;
+  }
+
+  async updateEvent(id: string, event: Partial<InsertEvent>): Promise<Event | undefined> {
+    const existing = this.events.get(id);
+    if (!existing) return undefined;
+    const updated: Event = { ...existing, ...event } as Event;
+    this.events.set(id, updated);
+    return updated;
+  }
+
+  async deleteEvent(id: string): Promise<boolean> {
+    return this.events.delete(id);
   }
 
   // Games
@@ -269,6 +309,25 @@ export class MemStorage implements IStorage {
     return newGame;
   }
 
+  async getUpcomingGames(): Promise<Game[]> {
+    const now = new Date();
+    return Array.from(this.games.values())
+      .filter(game => new Date(game.startTime) >= now)
+      .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
+  }
+
+  async updateGame(id: string, game: Partial<InsertGame>): Promise<Game | undefined> {
+    const existing = this.games.get(id);
+    if (!existing) return undefined;
+    const updated: Game = { ...existing, ...game } as Game;
+    this.games.set(id, updated);
+    return updated;
+  }
+
+  async deleteGame(id: string): Promise<boolean> {
+    return this.games.delete(id);
+  }
+
   // Reservations
   async getReservations(): Promise<Reservation[]> {
     return Array.from(this.reservations.values()).sort((a, b) => 
@@ -293,6 +352,18 @@ export class MemStorage implements IStorage {
     return newReservation;
   }
 
+  async updateReservation(id: string, reservation: Partial<InsertReservation>): Promise<Reservation | undefined> {
+    const existing = this.reservations.get(id);
+    if (!existing) return undefined;
+    const updated: Reservation = { ...existing, ...reservation } as Reservation;
+    this.reservations.set(id, updated);
+    return updated;
+  }
+
+  async deleteReservation(id: string): Promise<boolean> {
+    return this.reservations.delete(id);
+  }
+
   // Settings
   async getSettings(): Promise<SiteSettings> {
     return this.settings;
@@ -310,107 +381,105 @@ export class MemStorage implements IStorage {
 
 // Database storage implementation
 export class DatabaseStorage implements IStorage {
-  constructor() {
-    // Initialize database with existing data
-    this.initializeDatabase();
+  constructor() {}
+
+  async init(): Promise<void> {
+    try {
+      await this.initializeDatabase();
+    } catch (error) {
+      console.error('Error initializing database:', error);
+      throw error;
+    }
   }
 
   private async initializeDatabase() {
-    try {
-      // Check if data already exists
-      const existingCategories = await this.getMenuCategories();
-      if (existingCategories.length === 0) {
-        // Load and migrate data from JSON files
-        await this.migrateDataFromJSON();
-      }
-    } catch (error) {
-      console.error('Error initializing database:', error);
+    // Check if data already exists
+    const existingCategories = await this.getMenuCategories();
+    if (existingCategories.length === 0) {
+      // Load and migrate data from JSON files
+      await this.migrateDataFromJSON();
     }
   }
 
   private async migrateDataFromJSON() {
-    try {
-      // Create the database client
-      const { db } = await import("./db");
-      const { menuCategories: menuCategoriesTable, menuItems: menuItemsTable, events: eventsTable, games: gamesTable } = await import("@shared/schema");
-      
-      // Load menu data
-      const menuData = JSON.parse(await readFile(join(process.cwd(), 'server/data/menu.json'), 'utf-8'));
-      
-      // Insert categories
-      for (const category of menuData.categories) {
-        try {
-          await db.insert(menuCategoriesTable).values({
-            id: category.id,
-            name: category.name,
-            slug: category.slug,
-            displayOrder: category.order
-          }).onConflictDoNothing();
-        } catch (e) {
-          console.log('Category already exists:', category.id);
-        }
+    // Create the database client
+    const { db } = await import("./db");
+    const { menuCategories: menuCategoriesTable, menuItems: menuItemsTable, events: eventsTable, games: gamesTable } = await import("@shared/schema");
+
+    // Load menu data
+    const menuData = JSON.parse(await readFile(join(process.cwd(), 'server/data/menu.json'), 'utf-8'));
+
+    // Insert categories
+    for (const category of menuData.categories) {
+      try {
+        await db.insert(menuCategoriesTable).values({
+          id: category.id,
+          name: category.name,
+          slug: category.slug,
+          displayOrder: category.order
+        }).onConflictDoNothing();
+      } catch (e) {
+        console.log('Category already exists:', category.id);
       }
-      
-      // Insert menu items
-      for (const item of menuData.items) {
-        try {
-          await db.insert(menuItemsTable).values({
-            id: item.id,
-            categoryId: item.categoryId,
-            name: item.name,
-            description: item.description || null,
-            price: item.price,
-            image: item.image || null,
-            badges: item.badges || null,
-            allergens: item.allergens || null
-          }).onConflictDoNothing();
-        } catch (e) {
-          console.log('Menu item already exists:', item.id);
-        }
-      }
-      
-      // Load and insert events
-      const eventsData = JSON.parse(await readFile(join(process.cwd(), 'server/data/events.json'), 'utf-8'));
-      for (const event of eventsData) {
-        try {
-          await db.insert(eventsTable).values({
-            id: event.id,
-            title: event.title,
-            slug: event.slug,
-            startDate: new Date(event.start),
-            endDate: new Date(event.end),
-            image: event.image || null,
-            description: event.description || null,
-            tags: event.tags || null
-          }).onConflictDoNothing();
-        } catch (e) {
-          console.log('Event already exists:', event.id);
-        }
-      }
-      
-      // Load and insert games
-      const gamesData = JSON.parse(await readFile(join(process.cwd(), 'server/data/games.json'), 'utf-8'));
-      for (const game of gamesData) {
-        try {
-          await db.insert(gamesTable).values({
-            id: game.id,
-            league: game.league,
-            homeTeam: game.homeTeam,
-            awayTeam: game.awayTeam,
-            homeAbbr: game.homeAbbr,
-            awayAbbr: game.awayAbbr,
-            startTime: new Date(game.datetime),
-            channel: game.channel || null
-          }).onConflictDoNothing();
-        } catch (e) {
-          console.log('Game already exists:', game.id);
-        }
-      }
-      
-      console.log('Database migration completed successfully');
-    } catch (error) {
-      console.error('Error migrating data:', error);
     }
+
+    // Insert menu items
+    for (const item of menuData.items) {
+      try {
+        await db.insert(menuItemsTable).values({
+          id: item.id,
+          categoryId: item.categoryId,
+          name: item.name,
+          description: item.description || null,
+          price: item.price,
+          image: item.image || null,
+          badges: item.badges || null,
+          allergens: item.allergens || null
+        }).onConflictDoNothing();
+      } catch (e) {
+        console.log('Menu item already exists:', item.id);
+      }
+    }
+
+    // Load and insert events
+    const eventsData = JSON.parse(await readFile(join(process.cwd(), 'server/data/events.json'), 'utf-8'));
+    for (const event of eventsData) {
+      try {
+        await db.insert(eventsTable).values({
+          id: event.id,
+          title: event.title,
+          slug: event.slug,
+          startDate: new Date(event.start),
+          endDate: new Date(event.end),
+          image: event.image || null,
+          description: event.description || null,
+          tags: event.tags || null
+        }).onConflictDoNothing();
+      } catch (e) {
+        console.log('Event already exists:', event.id);
+      }
+    }
+
+    // Load and insert games
+    const gamesData = JSON.parse(await readFile(join(process.cwd(), 'server/data/games.json'), 'utf-8'));
+    for (const game of gamesData) {
+      try {
+        await db.insert(gamesTable).values({
+          id: game.id,
+          league: game.league,
+          homeTeam: game.homeTeam,
+          awayTeam: game.awayTeam,
+          homeAbbr: game.homeAbbr,
+          awayAbbr: game.awayAbbr,
+          startTime: new Date(game.datetime),
+          channel: game.channel || null
+        }).onConflictDoNothing();
+      } catch (e) {
+        console.log('Game already exists:', game.id);
+      }
+    }
+
+    console.log('Database migration completed successfully');
   }
 
   // Menu Categories
