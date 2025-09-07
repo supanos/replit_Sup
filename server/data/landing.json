@@ -1,0 +1,38 @@
+{
+  "popup": {
+    "enabled": false,
+    "duration": 20,
+    "autoRedirect": true
+  },
+  "hero": {
+    "title": "SUPONO'S",
+    "subtitle": "NFL KICKOFF WEEK PARTY",
+    "description": "Join us for the biggest sports celebration of the year! Exclusive drink specials, premium seating, and the best atmosphere to watch every game.",
+    "backgroundImage": "https://images.unsplash.com/photo-1574391884720-bfb65e72b3e5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&h=1080",
+    "ctaText": "Reserve Your Table",
+    "ctaLink": "/reserve"
+  },
+  "features": [
+    {
+      "icon": "🍾",
+      "title": "DRINK SPECIALS",
+      "description": "$3 draft beers & $8 signature cocktails all week long"
+    },
+    {
+      "icon": "🍕",
+      "title": "PREMIUM VIEWING",
+      "description": "Multiple 75\" 4K screens with perfect angles from every seat"
+    },
+    {
+      "icon": "🏈",
+      "title": "GAME DAY ATMOSPHERE",
+      "description": "The loudest, most exciting sports bar experience in the city"
+    }
+  ],
+  "specialOffer": {
+    "enabled": true,
+    "title": "SPECIAL EVENT HAPPENING NOW",
+    "description": "Join us for the biggest game of the season!",
+    "badge": "🎯"
+  }
+}

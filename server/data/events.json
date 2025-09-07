@@ -1,0 +1,51 @@
+[
+  {
+    "id": "event-001",
+    "title": "NFL Playoff Party",
+    "slug": "nfl-playoff-party",
+    "start": "2025-01-15T18:00:00.000Z",
+    "end": "2025-01-15T23:00:00.000Z",
+    "image": "https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400",
+    "description": "Join us for the biggest game of the season! Food specials, drink deals, and prizes throughout the game. Reserve your table early - this one fills up fast!",
+    "tags": ["playoff game", "special event"]
+  },
+  {
+    "id": "event-002", 
+    "title": "Acoustic Friday",
+    "slug": "acoustic-friday",
+    "start": "2025-01-18T19:00:00.000Z",
+    "end": "2025-01-18T22:00:00.000Z",
+    "image": "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400",
+    "description": "Local acoustic duo performing your favorite classics and modern hits. Perfect background music for dinner and drinks with friends.",
+    "tags": ["live music", "acoustic"]
+  },
+  {
+    "id": "event-003",
+    "title": "Weekly Trivia Night",
+    "slug": "weekly-trivia-night", 
+    "start": "2025-01-16T20:00:00.000Z",
+    "end": "2025-01-16T22:00:00.000Z",
+    "image": "https://images.unsplash.com/photo-1606092195730-5d7b9af1efc5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400",
+    "description": "Test your knowledge with our weekly trivia competition. Great prizes for winning teams and fun for everyone! Teams of 4-6 people recommended.",
+    "tags": ["trivia night", "weekly event"]
+  },
+  {
+    "id": "event-004",
+    "title": "Super Bowl Watch Party",
+    "slug": "super-bowl-watch-party",
+    "start": "2025-02-09T17:00:00.000Z", 
+    "end": "2025-02-09T23:30:00.000Z",
+    "image": "https://images.unsplash.com/photo-1574391884720-bfb65e72b3e5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400",
+    "description": "The biggest sports event of the year! Join us for an unforgettable Super Bowl experience with premium viewing, special menu items, and halftime entertainment.",
+    "tags": ["super bowl", "championship", "special event"]
+  },
+  {
+    "id": "event-005",
+    "title": "March Madness Bracket Challenge",
+    "slug": "march-madness-bracket-challenge",
+    "start": "2025-03-15T12:00:00.000Z",
+    "end": "2025-04-08T23:59:00.000Z",
+    "description": "Join our March Madness bracket challenge! $20 entry fee, winner takes 60% of the pot. Fill out your brackets and watch every game with us.",
+    "tags": ["march madness", "bracket challenge", "tournament"]
+  }
+]

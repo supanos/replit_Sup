@@ -1,0 +1,52 @@
+[
+  {
+    "id": "game-001",
+    "league": "NFL",
+    "homeTeam": "Chiefs",
+    "awayTeam": "Bills", 
+    "homeAbbr": "KC",
+    "awayAbbr": "BUF",
+    "datetime": "2025-01-15T20:20:00.000Z",
+    "channel": "ESPN"
+  },
+  {
+    "id": "game-002",
+    "league": "NBA",
+    "homeTeam": "Lakers",
+    "awayTeam": "Celtics",
+    "homeAbbr": "LAL", 
+    "awayAbbr": "BOS",
+    "datetime": "2025-01-15T22:30:00.000Z",
+    "channel": "TNT"
+  },
+  {
+    "id": "game-003",
+    "league": "NHL",
+    "homeTeam": "Rangers",
+    "awayTeam": "Bruins",
+    "homeAbbr": "NYR",
+    "awayAbbr": "BOS", 
+    "datetime": "2025-01-15T19:00:00.000Z",
+    "channel": "ESPN+"
+  },
+  {
+    "id": "game-004",
+    "league": "NBA",
+    "homeTeam": "Warriors",
+    "awayTeam": "Nuggets",
+    "homeAbbr": "GSW",
+    "awayAbbr": "DEN",
+    "datetime": "2025-01-16T21:00:00.000Z", 
+    "channel": "ESPN"
+  },
+  {
+    "id": "game-005",
+    "league": "NFL",
+    "homeTeam": "Packers", 
+    "awayTeam": "Cowboys",
+    "homeAbbr": "GB",
+    "awayAbbr": "DAL",
+    "datetime": "2025-01-16T16:30:00.000Z",
+    "channel": "FOX"
+  }
+]

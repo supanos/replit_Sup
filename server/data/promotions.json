@@ -1,0 +1,44 @@
+{
+  "landing": {
+    "enabled": true,
+    "start": "2025-08-27T22:28:00.000Z",
+    "end": "2025-08-29T19:28:00.000Z",
+    "redirectAllRoutes": true
+  },
+  "sideBanner": {
+    "enabled": false,
+    "start": "2025-08-28T22:06:00.000Z",
+    "end": "2025-08-29T22:06:00.000Z",
+    "message": "NFL Kickoff Week! Reserve your table for the biggest games.",
+    "link": "/events",
+    "placement": "right"
+  },
+  "happyHour": {
+    "enabled": true,
+    "title": "WEEKDAY SPECIALS",
+    "subtitle": "HAPPY HOUR",
+    "description": "Monday through Friday, 3PM - 6PM. Half-price appetizers, $2 off craft beers, and $5 select cocktails.",
+    "days": "Monday through Friday",
+    "timeRange": "3PM - 6PM",
+    "offers": [
+      {
+        "icon": "🍽️",
+        "title": "50% OFF",
+        "description": "All Appetizers",
+        "discount": "50%"
+      },
+      {
+        "icon": "🍺",
+        "title": "$2 OFF",
+        "description": "Craft Beers",
+        "discount": "$2"
+      },
+      {
+        "icon": "🍸",
+        "title": "$5",
+        "description": "Select Cocktails",
+        "discount": "$5"
+      }
+    ]
+  }
+}

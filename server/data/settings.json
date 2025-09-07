@@ -1,0 +1,44 @@
+{
+  "name": "Supono's Sports Bar",
+  "address": "123 Stadium Drive, Downtown, State 12345",
+  "phone": "(555) SPORT-BAR",
+  "email": "info@suponos.com",
+  "hours": [
+    {
+      "day": "Monday - Thursday",
+      "open": "11:00 AM",
+      "close": "11:00 PM"
+    },
+    {
+      "day": "Friday - Saturday", 
+      "open": "11:00 AM",
+      "close": "1:00 AM"
+    },
+    {
+      "day": "Sunday",
+      "open": "11:00 AM", 
+      "close": "10:00 PM"
+    }
+  ],
+  "socials": {
+    "facebook": "https://facebook.com/suponos",
+    "instagram": "https://instagram.com/suponos_bar",
+    "twitter": "https://twitter.com/suponos",
+    "yelp": "https://yelp.com/biz/suponos-sports-bar"
+  },
+  "hero": {
+    "backgroundImage": "/Sports_bar_hero_image_27617d6f.png",
+    "title": "TONIGHT'S GAMES AT SUPONO'S",
+    "subtitle": "Experience every touchdown, every goal, every victory with the best crowd in town"
+  },
+  "footer": {
+    "description": "Supono's Sports Bar - The ultimate destination for sports fans. Experience every touchdown, every goal, every victory with the best crowd in town.",
+    "links": [
+      { "title": "Reservations", "url": "/contact" },
+      { "title": "Private Events", "url": "/events" },
+      { "title": "Menu", "url": "/menu" },
+      { "title": "About Us", "url": "/about" }
+    ],
+    "copyright": "© 2025 Supono's Sports Bar. All rights reserved."
+  }
+}
