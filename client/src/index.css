@@ -1,0 +1,268 @@
+@import url('https://fonts.googleapis.com/css2?family=Anton:wght@400&family=Inter:wght@300;400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Brand Colors */
+  --brand-navy: hsl(211, 46%, 11%);
+  --brand-gold: hsl(45, 69%, 52%);
+  --brand-white: hsl(0, 0%, 100%);
+  --brand-gray: hsl(210, 20%, 96%);
+
+  /* Updated Color System */
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(211, 46%, 11%);
+  --card: hsl(210, 20%, 96%);
+  --card-foreground: hsl(211, 46%, 11%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(211, 46%, 11%);
+  --primary: hsl(45, 69%, 52%);
+  --primary-foreground: hsl(211, 46%, 11%);
+  --secondary: hsl(211, 46%, 11%);
+  --secondary-foreground: hsl(0, 0%, 100%);
+  --muted: hsl(210, 20%, 92%);
+  --muted-foreground: hsl(211, 20%, 40%);
+  --accent: hsl(45, 69%, 95%);
+  --accent-foreground: hsl(211, 46%, 11%);
+  --destructive: hsl(0, 84%, 60%);
+  --destructive-foreground: hsl(0, 0%, 100%);
+  --border: hsl(210, 20%, 88%);
+  --input: hsl(210, 20%, 95%);
+  --ring: hsl(45, 69%, 52%);
+  
+  /* Typography */
+  --font-anton: 'Anton', sans-serif;
+  --font-inter: 'Inter', sans-serif;
+  
+  /* Radius */
+  --radius: 0.75rem;
+  
+  /* WordPress-like Admin Colors */
+  --wp-primary: #2271b1;
+  --wp-primary-contrast: #ffffff;
+  --surface: #ffffff;
+  --surface-muted: #f6f7f7;
+  --border: #dcdcde;
+  --text: #1d2327;
+  --text-muted: #50575e;
+  --sidebar-bg: #1d2327;
+  --sidebar-text: #c3c4c7;
+  --sidebar-active: #ffffff;
+  --sidebar-active-bg: rgba(255,255,255,.08);
+}
+
+/* WordPress Admin Theme */
+:root {
+  --background: var(--surface-muted);
+  --foreground: var(--text);
+  --card: var(--surface);
+  --card-foreground: var(--text);
+  --popover: var(--surface);
+  --popover-foreground: var(--text);
+  --primary: 34 113 177;
+  --primary-foreground: 255 255 255;
+  --secondary: 246 247 247;
+  --secondary-foreground: var(--text);
+  --muted: 246 247 247;
+  --muted-foreground: var(--text-muted);
+  --accent: 246 247 247;
+  --accent-foreground: var(--text);
+  --destructive: 220 38 38;
+  --destructive-foreground: 255 255 255;
+  --border: var(--border);
+  --input: var(--surface);
+  --ring: 34 113 177;
+}
+
+@layer components {
+  .font-inter {
+    font-family: var(--font-inter);
+  }
+  
+  .font-anton {
+    font-family: var(--font-anton);
+  }
+  
+  .text-brand-navy {
+    color: var(--brand-navy);
+  }
+  
+  .text-brand-gold {
+    color: var(--brand-gold);
+  }
+  
+  .bg-brand-navy {
+    background-color: var(--brand-navy);
+  }
+  
+  .bg-brand-gold {
+    background-color: var(--brand-gold);
+  }
+  
+  .text-shadow {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-inter antialiased;
+    background-color: var(--surface-muted);
+    color: var(--text);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-anton);
+    font-weight: 400;
+    letter-spacing: 0.02em;
+  }
+}
+
+@layer components {
+  .hero-gradient {
+    background: linear-gradient(135deg, var(--brand-navy) 0%, rgba(11, 27, 43, 0.9) 50%, var(--brand-navy) 100%);
+  }
+  
+  .scoreboard-text {
+    font-family: var(--font-anton);
+    font-size: clamp(3rem, 8vw, 7rem);
+    line-height: 0.9;
+    letter-spacing: 0.02em;
+  }
+  
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-xl hover:scale-105;
+  }
+  
+  .gold-gradient {
+    background: linear-gradient(135deg, var(--brand-gold) 0%, #f4d03f 100%);
+  }
+  
+  .btn-primary {
+    @apply bg-brand-gold text-brand-navy px-6 py-3 rounded-xl font-semibold hover:bg-yellow-400 transition-colors shadow-lg;
+  }
+  
+  .btn-secondary {
+    @apply bg-transparent border-2 border-brand-gold text-brand-gold px-6 py-3 rounded-xl font-semibold hover:bg-brand-gold hover:text-brand-navy transition-colors;
+  }
+  
+  /* WordPress-like Admin Components */
+  .admin-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 1px 2px rgba(0,0,0,.06), 0 1px 3px rgba(0,0,0,.08);
+  }
+  
+  .admin-label {
+    color: var(--text);
+    font-weight: 500;
+  }
+  
+  .admin-help {
+    color: var(--text-muted);
+    font-size: 12px;
+  }
+  
+  .btn-primary {
+    background: var(--wp-primary);
+    color: var(--wp-primary-contrast);
+  }
+  
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--border);
+  }
+  
+  .admin-input {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  
+  .admin-sidebar {
+    width: 280px;
+    background: var(--sidebar-bg);
+    color: var(--sidebar-text);
+    height: 100vh;
+    position: sticky;
+    top: 0;
+  }
+  
+  .admin-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    width: 100%;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    backdrop-filter: blur(8px);
+  }
+  
+  .admin-focus {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2;
+    --tw-ring-color: rgba(34, 113, 177, 0.45);
+  }
+}
+
+@layer utilities {
+  .text-shadow {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  }
+  
+  .backdrop-dark {
+    backdrop-filter: blur(8px);
+    background-color: rgba(11, 27, 43, 0.8);
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--brand-navy);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--brand-gold);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #f4d03f;
+}
+
+/* Animation for side banner */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.5s ease-out;
+}
+
+/* Emoji Font Styling */
+.font-emoji {
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* Hide unwanted "0" elements in menu cards */
+[data-testid^="menu-item-"] .hidden-zero {
+  display: none !important;
+}
