@@ -215,12 +215,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/admin/menu/categories/:id", async (req, res) => {
     try {
-      const category = await storage.updateMenuCategory(req.params.id, req.body);
+      const validatedData = insertMenuCategorySchema.partial().parse(req.body);
+      const category = await storage.updateMenuCategory(req.params.id, validatedData);
       if (!category) {
         return res.status(404).json({ error: "Category not found" });
       }
       res.json(category);
     } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid category data", details: error.errors });
+      }
       res.status(500).json({ error: "Failed to update category" });
     }
   });
@@ -253,12 +257,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/admin/menu/items/:id", async (req, res) => {
     try {
-      const item = await storage.updateMenuItem(req.params.id, req.body);
+      const validatedData = insertMenuItemSchema.partial().parse(req.body);
+      const item = await storage.updateMenuItem(req.params.id, validatedData);
       if (!item) {
         return res.status(404).json({ error: "Menu item not found" });
       }
       res.json(item);
     } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid menu item data", details: error.errors });
+      }
       res.status(500).json({ error: "Failed to update menu item" });
     }
   });
@@ -291,12 +299,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/admin/events/:id", async (req, res) => {
     try {
-      const event = await storage.updateEvent(req.params.id, req.body);
+      const validatedData = insertEventSchema.partial().parse(req.body);
+      const event = await storage.updateEvent(req.params.id, validatedData);
       if (!event) {
         return res.status(404).json({ error: "Event not found" });
       }
       res.json(event);
     } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid event data", details: error.errors });
+      }
       res.status(500).json({ error: "Failed to update event" });
     }
   });
@@ -329,12 +341,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/admin/games/:id", async (req, res) => {
     try {
-      const game = await storage.updateGame(req.params.id, req.body);
+      const validatedData = insertGameSchema.partial().parse(req.body);
+      const game = await storage.updateGame(req.params.id, validatedData);
       if (!game) {
         return res.status(404).json({ error: "Game not found" });
       }
       res.json(game);
     } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid game data", details: error.errors });
+      }
       res.status(500).json({ error: "Failed to update game" });
     }
   });
