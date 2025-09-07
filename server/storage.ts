@@ -173,7 +173,7 @@ export class MemStorage implements IStorage {
 
   // Menu Categories
   async getMenuCategories(): Promise<MenuCategory[]> {
-    return Array.from(this.menuCategories.values()).sort((a, b) => a.order - b.order);
+      return Array.from(this.menuCategories.values()).sort((a, b) => a.displayOrder - b.displayOrder);
   }
 
   async getMenuCategory(id: string): Promise<MenuCategory | undefined> {
@@ -203,8 +203,8 @@ export class MemStorage implements IStorage {
       ...item,
       description: item.description || null,
       image: item.image || null,
-      badges: item.badges || null,
-      allergens: item.allergens || null
+      badges: item.badges ? [...item.badges] : null,
+      allergens: item.allergens ? [...item.allergens] : null
     };
     this.menuItems.set(item.id, menuItem);
     return menuItem;
@@ -212,9 +212,9 @@ export class MemStorage implements IStorage {
 
   // Events
   async getEvents(): Promise<Event[]> {
-    return Array.from(this.events.values()).sort((a, b) => 
-      new Date(a.start).getTime() - new Date(b.start).getTime()
-    );
+      return Array.from(this.events.values()).sort((a, b) =>
+        new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+      );
   }
 
   async getEvent(id: string): Promise<Event | undefined> {
@@ -230,7 +230,7 @@ export class MemStorage implements IStorage {
       ...event,
       description: event.description || null,
       image: event.image || null,
-      tags: event.tags || null
+      tags: event.tags ? [...event.tags] : null
     };
     this.events.set(event.id, newEvent);
     return newEvent;
@@ -238,22 +238,22 @@ export class MemStorage implements IStorage {
 
   // Games
   async getGames(): Promise<Game[]> {
-    return Array.from(this.games.values()).sort((a, b) => 
-      new Date(a.datetime).getTime() - new Date(b.datetime).getTime()
-    );
+      return Array.from(this.games.values()).sort((a, b) =>
+        new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
+      );
   }
 
   async getTodaysGames(): Promise<Game[]> {
-    const today = new Date();
-    const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
-    
-    return Array.from(this.games.values())
-      .filter(game => {
-        const gameDate = new Date(game.datetime);
-        return gameDate >= startOfDay && gameDate < endOfDay;
-      })
-      .sort((a, b) => new Date(a.datetime).getTime() - new Date(b.datetime).getTime());
+      const today = new Date();
+      const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+
+      return Array.from(this.games.values())
+        .filter(game => {
+          const gameDate = new Date(game.startTime);
+          return gameDate >= startOfDay && gameDate < endOfDay;
+        })
+        .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
   }
 
   async getGame(id: string): Promise<Game | undefined> {
@@ -485,7 +485,7 @@ export class DatabaseStorage implements IStorage {
     const { menuItems } = await import("@shared/schema");
     const [newItem] = await db
       .insert(menuItems)
-      .values(item)
+      .values(item as any)
       .returning();
     return newItem;
   }
@@ -496,7 +496,7 @@ export class DatabaseStorage implements IStorage {
     const { eq } = await import("drizzle-orm");
     const [updated] = await db
       .update(menuItems)
-      .set(item)
+      .set(item as any)
       .where(eq(menuItems.id, id))
       .returning();
     return updated || undefined;
@@ -538,7 +538,7 @@ export class DatabaseStorage implements IStorage {
     const { events } = await import("@shared/schema");
     const [newEvent] = await db
       .insert(events)
-      .values(event)
+      .values(event as any)
       .returning();
     return newEvent;
   }
@@ -549,7 +549,7 @@ export class DatabaseStorage implements IStorage {
     const { eq } = await import("drizzle-orm");
     const [updated] = await db
       .update(events)
-      .set(event)
+      .set(event as any)
       .where(eq(events.id, id))
       .returning();
     return updated || undefined;
@@ -583,7 +583,7 @@ export class DatabaseStorage implements IStorage {
     const { games } = await import("@shared/schema");
     const { gte } = await import("drizzle-orm");
     const now = new Date();
-    return await db.select().from(games).where(gte(games.startTime, now.toISOString())).orderBy(games.startTime);
+    return await db.select().from(games).where(gte(games.startTime, now)).orderBy(games.startTime);
   }
 
   async getGame(id: string): Promise<Game | undefined> {
@@ -692,12 +692,14 @@ export class DatabaseStorage implements IStorage {
   // Static data - Legacy compatibility
   async getLandingData(): Promise<LandingContent> {
     return {
+      id: "default",
       popup: { enabled: false, duration: 20, autoRedirect: true, redirectUrl: "" }
     };
   }
 
   async getPromotionsData(): Promise<Promotions> {
     return {
+      id: "default",
       landing: { enabled: true, start: "2025-08-25", end: "2025-12-31", redirectAllRoutes: false },
       sideBanner: { enabled: false, start: "", end: "", message: "", link: "", placement: "" },
       happyHour: { enabled: false, title: "", subtitle: "", description: "", days: "", timeRange: "", offers: [] }
