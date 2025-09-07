@@ -97,25 +97,36 @@ export class MemStorage implements IStorage {
       }
       
       // Load events data
-      const eventsData = JSON.parse(await readFile(join(process.cwd(), 'server/data/events.json'), 'utf-8'));
+      const eventsData = JSON.parse(
+        await readFile(join(process.cwd(), 'server/data/events.json'), 'utf-8')
+      );
       for (const event of eventsData) {
         const newEvent: Event = {
-          ...event,
-          start: new Date(event.start),
-          end: new Date(event.end),
+          id: event.id,
+          title: event.title,
+          slug: event.slug,
+          startDate: new Date(event.startDate),
+          endDate: new Date(event.endDate),
           description: event.description || null,
           image: event.image || null,
           tags: Array.isArray(event.tags) ? event.tags : null
         };
         this.events.set(event.id, newEvent);
       }
-      
+
       // Load games data
-      const gamesData = JSON.parse(await readFile(join(process.cwd(), 'server/data/games.json'), 'utf-8'));
+      const gamesData = JSON.parse(
+        await readFile(join(process.cwd(), 'server/data/games.json'), 'utf-8')
+      );
       for (const game of gamesData) {
         const newGame: Game = {
-          ...game,
-          datetime: new Date(game.datetime),
+          id: game.id,
+          league: game.league,
+          homeTeam: game.homeTeam,
+          awayTeam: game.awayTeam,
+          homeAbbr: game.homeAbbr,
+          awayAbbr: game.awayAbbr,
+          startTime: new Date(game.startTime),
           channel: game.channel || null
         };
         this.games.set(game.id, newGame);
@@ -370,38 +381,48 @@ export class DatabaseStorage implements IStorage {
       }
       
       // Load and insert events
-      const eventsData = JSON.parse(await readFile(join(process.cwd(), 'server/data/events.json'), 'utf-8'));
+      const eventsData = JSON.parse(
+        await readFile(join(process.cwd(), 'server/data/events.json'), 'utf-8')
+      );
       for (const event of eventsData) {
         try {
-          await db.insert(eventsTable).values({
-            id: event.id,
-            title: event.title,
-            slug: event.slug,
-            startDate: new Date(event.start),
-            endDate: new Date(event.end),
-            image: event.image || null,
-            description: event.description || null,
-            tags: event.tags || null
-          }).onConflictDoNothing();
+          await db
+            .insert(eventsTable)
+            .values({
+              id: event.id,
+              title: event.title,
+              slug: event.slug,
+              startDate: new Date(event.startDate),
+              endDate: new Date(event.endDate),
+              image: event.image || null,
+              description: event.description || null,
+              tags: event.tags || null
+            })
+            .onConflictDoNothing();
         } catch (e) {
           console.log('Event already exists:', event.id);
         }
       }
-      
+
       // Load and insert games
-      const gamesData = JSON.parse(await readFile(join(process.cwd(), 'server/data/games.json'), 'utf-8'));
+      const gamesData = JSON.parse(
+        await readFile(join(process.cwd(), 'server/data/games.json'), 'utf-8')
+      );
       for (const game of gamesData) {
         try {
-          await db.insert(gamesTable).values({
-            id: game.id,
-            league: game.league,
-            homeTeam: game.homeTeam,
-            awayTeam: game.awayTeam,
-            homeAbbr: game.homeAbbr,
-            awayAbbr: game.awayAbbr,
-            startTime: new Date(game.datetime),
-            channel: game.channel || null
-          }).onConflictDoNothing();
+          await db
+            .insert(gamesTable)
+            .values({
+              id: game.id,
+              league: game.league,
+              homeTeam: game.homeTeam,
+              awayTeam: game.awayTeam,
+              homeAbbr: game.homeAbbr,
+              awayAbbr: game.awayAbbr,
+              startTime: new Date(game.startTime),
+              channel: game.channel || null
+            })
+            .onConflictDoNothing();
         } catch (e) {
           console.log('Game already exists:', game.id);
         }
