@@ -1,0 +1,9 @@
+# Dev Dockerfile (hot-reload) 
+FROM node:20-alpine
+RUN apk add --no-cache bash
+WORKDIR /usr/src/app
+# dependencies cached by package files:
+COPY package*.json ./
+RUN npm i -g tsx vite esbuild && npm ci
+# source is mounted in docker-compose for hot reload
+EXPOSE 5000 5173

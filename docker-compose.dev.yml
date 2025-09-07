@@ -1,0 +1,45 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: suponos
+      POSTGRES_USER: suponos_user
+      POSTGRES_PASSWORD: devpassword123!
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4:8
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@local
+      PGADMIN_DEFAULT_PASSWORD: admin123!
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    command: sh -lc "npm ci && npm run dev"
+    working_dir: /usr/src/app
+    environment:
+      - NODE_ENV=development
+      - PORT=5000
+      - DATABASE_URL=postgresql://suponos_user:devpassword123!@db:5432/suponos
+      - SESSION_SECRET=dev-session-secret-change-me
+    volumes:
+      - .:/usr/src/app
+    ports:
+      - "5173:5173"   # Vite
+      - "5000:5000"   # API
+    depends_on:
+      - db
+volumes:
+  pgdata:
