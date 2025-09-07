@@ -6,7 +6,7 @@
     "awayTeam": "Bills", 
     "homeAbbr": "KC",
     "awayAbbr": "BUF",
-    "datetime": "2025-01-15T20:20:00.000Z",
+    "startTime": "2025-01-15T20:20:00.000Z",
     "channel": "ESPN"
   },
   {
@@ -16,7 +16,7 @@
     "awayTeam": "Celtics",
     "homeAbbr": "LAL", 
     "awayAbbr": "BOS",
-    "datetime": "2025-01-15T22:30:00.000Z",
+    "startTime": "2025-01-15T22:30:00.000Z",
     "channel": "TNT"
   },
   {
@@ -26,7 +26,7 @@
     "awayTeam": "Bruins",
     "homeAbbr": "NYR",
     "awayAbbr": "BOS", 
-    "datetime": "2025-01-15T19:00:00.000Z",
+    "startTime": "2025-01-15T19:00:00.000Z",
     "channel": "ESPN+"
   },
   {
@@ -36,7 +36,7 @@
     "awayTeam": "Nuggets",
     "homeAbbr": "GSW",
     "awayAbbr": "DEN",
-    "datetime": "2025-01-16T21:00:00.000Z", 
+    "startTime": "2025-01-16T21:00:00.000Z",
     "channel": "ESPN"
   },
   {
@@ -46,7 +46,7 @@
     "awayTeam": "Cowboys",
     "homeAbbr": "GB",
     "awayAbbr": "DAL",
-    "datetime": "2025-01-16T16:30:00.000Z",
+    "startTime": "2025-01-16T16:30:00.000Z",
     "channel": "FOX"
   }
 ]

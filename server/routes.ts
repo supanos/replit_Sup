@@ -1,11 +1,38 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertReservationSchema, insertMenuCategorySchema, insertMenuItemSchema, insertEventSchema, insertGameSchema } from "@shared/schema";
+import {
+  insertReservationSchema,
+  insertMenuCategorySchema,
+  insertMenuItemSchema,
+  insertEventSchema,
+  insertGameSchema,
+  insertUserSchema,
+  users,
+} from "@shared/schema";
 import { z } from "zod";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API Routes for Supono's Sports Bar
+
+  const authMiddleware = (req: any, res: any, next: any) => {
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.split(" ")[1];
+    if (!token) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+    try {
+      const payload = jwt.verify(token, process.env.JWT_SECRET || "secret");
+      req.user = payload;
+      next();
+    } catch (err) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+  };
 
   // Menu endpoints
   app.get("/api/menu/categories", async (req, res) => {
@@ -197,6 +224,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ status: "ok", timestamp: new Date().toISOString() });
   });
 
+  // Require auth for admin routes
+  app.use("/api/admin", authMiddleware);
+
   // Admin CRUD Routes
   
   // Menu Categories Admin
@@ -215,12 +245,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/admin/menu/categories/:id", async (req, res) => {
     try {
-      const category = await storage.updateMenuCategory(req.params.id, req.body);
+      const validatedData = insertMenuCategorySchema.partial().parse(req.body);
+      const category = await storage.updateMenuCategory(req.params.id, validatedData);
       if (!category) {
         return res.status(404).json({ error: "Category not found" });
       }
       res.json(category);
     } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid category data", details: error.errors });
+      }
       res.status(500).json({ error: "Failed to update category" });
     }
   });
@@ -253,12 +287,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/admin/menu/items/:id", async (req, res) => {
     try {
-      const item = await storage.updateMenuItem(req.params.id, req.body);
+      const validatedData = insertMenuItemSchema.partial().parse(req.body);
+      const item = await storage.updateMenuItem(req.params.id, validatedData);
       if (!item) {
         return res.status(404).json({ error: "Menu item not found" });
       }
       res.json(item);
     } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid menu item data", details: error.errors });
+      }
       res.status(500).json({ error: "Failed to update menu item" });
     }
   });
@@ -291,12 +329,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/admin/events/:id", async (req, res) => {
     try {
-      const event = await storage.updateEvent(req.params.id, req.body);
+      const validatedData = insertEventSchema.partial().parse(req.body);
+      const event = await storage.updateEvent(req.params.id, validatedData);
       if (!event) {
         return res.status(404).json({ error: "Event not found" });
       }
       res.json(event);
     } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid event data", details: error.errors });
+      }
       res.status(500).json({ error: "Failed to update event" });
     }
   });
@@ -329,12 +371,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/admin/games/:id", async (req, res) => {
     try {
-      const game = await storage.updateGame(req.params.id, req.body);
+      const validatedData = insertGameSchema.partial().parse(req.body);
+      const game = await storage.updateGame(req.params.id, validatedData);
       if (!game) {
         return res.status(404).json({ error: "Game not found" });
       }
       res.json(game);
     } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid game data", details: error.errors });
+      }
       res.status(500).json({ error: "Failed to update game" });
     }
   });
@@ -352,24 +398,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Authentication endpoints for admin
-  app.post("/api/auth/login", async (req, res) => {
-    const { username, password } = req.body;
-    
-    // Simple hardcoded admin check
-    if (username === "admin" && password === "admin123") {
-      res.json({ success: true, user: { id: 1, username: "admin" } });
-    } else {
-      res.status(401).json({ error: "Invalid credentials" });
+  app.post("/api/auth/register", async (req, res) => {
+    try {
+      const data = insertUserSchema.parse(req.body);
+      const hashedPassword = await bcrypt.hash(data.password, 10);
+      const [user] = await db
+        .insert(users)
+        .values({ ...data, password: hashedPassword })
+        .returning({ id: users.id, username: users.username, email: users.email });
+      res.status(201).json(user);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid user data", details: error.errors });
+      }
+      res.status(500).json({ error: "Failed to register user" });
     }
   });
 
-  app.post("/api/auth/logout", async (req, res) => {
+  app.post("/api/auth/login", async (req, res) => {
+    const { username, password } = req.body;
+    try {
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.username, username));
+      if (!user) {
+        return res.status(401).json({ error: "Invalid credentials" });
+      }
+      const valid = await bcrypt.compare(password, user.password);
+      if (!valid) {
+        return res.status(401).json({ error: "Invalid credentials" });
+      }
+      const token = jwt.sign(
+        { id: user.id, username: user.username },
+        process.env.JWT_SECRET || "secret",
+        { expiresIn: "1h" }
+      );
+      res.json({ token, user: { id: user.id, username: user.username } });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to login" });
+    }
+  });
+
+  app.post("/api/auth/logout", (_req, res) => {
     res.json({ success: true });
   });
 
-  app.get("/api/auth/me", async (req, res) => {
-    // For now, just return null (not authenticated)
-    res.json(null);
+  app.get("/api/auth/me", authMiddleware, (req: any, res) => {
+    res.json(req.user);
   });
 
   const httpServer = createServer(app);

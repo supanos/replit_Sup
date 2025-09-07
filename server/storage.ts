@@ -75,7 +75,81 @@ export class MemStorage implements IStorage {
 
   async init(): Promise<void> {
     try {
+codex/refactor-storage-constructors-to-include-init-method-a0oz35
       await this.initializeData();
+
+      // Load menu data
+      const menuData = JSON.parse(await readFile(join(process.cwd(), 'server/data/menu.json'), 'utf-8'));
+      
+      // Initialize menu categories
+      for (const category of menuData.categories) {
+        this.menuCategories.set(category.id, category);
+      }
+      
+      // Initialize menu items
+      for (const item of menuData.items) {
+        const menuItem: MenuItem = {
+          ...item,
+          description: item.description || null,
+          image: item.image || null,
+          badges: Array.isArray(item.badges) ? item.badges : null,
+          allergens: Array.isArray(item.allergens) ? item.allergens : null
+        };
+        this.menuItems.set(item.id, menuItem);
+      }
+      
+      // Load events data
+      const eventsData = JSON.parse(
+        await readFile(join(process.cwd(), 'server/data/events.json'), 'utf-8')
+      );
+      for (const event of eventsData) {
+        const newEvent: Event = {
+          id: event.id,
+          title: event.title,
+          slug: event.slug,
+          startDate: new Date(event.startDate),
+          endDate: new Date(event.endDate),
+          description: event.description || null,
+          image: event.image || null,
+          tags: Array.isArray(event.tags) ? event.tags : null
+        };
+        this.events.set(event.id, newEvent);
+      }
+
+      // Load games data
+      const gamesData = JSON.parse(
+        await readFile(join(process.cwd(), 'server/data/games.json'), 'utf-8')
+      );
+      for (const game of gamesData) {
+        const newGame: Game = {
+          id: game.id,
+          league: game.league,
+          homeTeam: game.homeTeam,
+          awayTeam: game.awayTeam,
+          homeAbbr: game.homeAbbr,
+          awayAbbr: game.awayAbbr,
+          startTime: new Date(game.startTime),
+          channel: game.channel || null
+        };
+        this.games.set(game.id, newGame);
+      }
+      
+      // Load landing data
+      this.landingData = JSON.parse(await readFile(join(process.cwd(), 'server/data/landing.json'), 'utf-8'));
+      
+      // Load promotions data
+      this.promotionsData = JSON.parse(await readFile(join(process.cwd(), 'server/data/promotions.json'), 'utf-8'));
+      
+      // Load settings data
+      const settingsData = JSON.parse(await readFile(join(process.cwd(), 'server/data/settings.json'), 'utf-8'));
+      this.settings = {
+        id: "main",
+        ...settingsData,
+        hours: Array.isArray(settingsData.hours) ? settingsData.hours : [],
+        socials: settingsData.socials || {},
+        hero: settingsData.hero || { backgroundImage: "", title: "", subtitle: "" },
+        footer: settingsData.footer || { description: "", links: [], copyright: "" }
+      }; main
     } catch (error) {
       console.error('Error loading data files:', error);
       this.initializeDefaultData();
@@ -439,6 +513,7 @@ export class DatabaseStorage implements IStorage {
       } catch (e) {
         console.log('Menu item already exists:', item.id);
       }
+ codex/refactor-storage-constructors-to-include-init-method-a0oz35
     }
 
     // Load and insert events
@@ -476,6 +551,55 @@ export class DatabaseStorage implements IStorage {
         }).onConflictDoNothing();
       } catch (e) {
         console.log('Game already exists:', game.id);
+
+      
+      // Load and insert events
+      const eventsData = JSON.parse(
+        await readFile(join(process.cwd(), 'server/data/events.json'), 'utf-8')
+      );
+      for (const event of eventsData) {
+        try {
+          await db
+            .insert(eventsTable)
+            .values({
+              id: event.id,
+              title: event.title,
+              slug: event.slug,
+              startDate: new Date(event.startDate),
+              endDate: new Date(event.endDate),
+              image: event.image || null,
+              description: event.description || null,
+              tags: event.tags || null
+            })
+            .onConflictDoNothing();
+        } catch (e) {
+          console.log('Event already exists:', event.id);
+        }
+      }
+
+      // Load and insert games
+      const gamesData = JSON.parse(
+        await readFile(join(process.cwd(), 'server/data/games.json'), 'utf-8')
+      );
+      for (const game of gamesData) {
+        try {
+          await db
+            .insert(gamesTable)
+            .values({
+              id: game.id,
+              league: game.league,
+              homeTeam: game.homeTeam,
+              awayTeam: game.awayTeam,
+              homeAbbr: game.homeAbbr,
+              awayAbbr: game.awayAbbr,
+              startTime: new Date(game.startTime),
+              channel: game.channel || null
+            })
+            .onConflictDoNothing();
+        } catch (e) {
+          console.log('Game already exists:', game.id);
+        }
+
       }
     }
 
